@@ -45,7 +45,7 @@ namespace APU_Programming_Cafe.Lecturer
             LecturerDetails lecturerDetails = new LecturerDetails();
             lecturerDetails.LecturerID = lecturerID;
 
-            string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\user\OneDrive - Asia Pacific University\IOOP APPLICATION\APU Programming Cafe\APU database.mdf"";Integrated Security=True;Connect Timeout=30";
+            string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\user\OneDrive - Asia Pacific University\IOOP APPLICATION\APU Programming Cafe\APU database.mdf"";Integrated Security=True";
             SqlConnection connection = new SqlConnection(connectionString);
             connection.Open();
             string fetchLecturerDetails = "SELECT * FROM Lecturer WHERE LecturerID = @value1";
@@ -89,7 +89,7 @@ namespace APU_Programming_Cafe.Lecturer
         {
             try
             {
-                string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\user\OneDrive - Asia Pacific University\IOOP APPLICATION\APU Programming Cafe\APU database.mdf"";Integrated Security=True;Connect Timeout=30";
+                string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\user\OneDrive - Asia Pacific University\IOOP APPLICATION\APU Programming Cafe\APU database.mdf"";Integrated Security=True";
                 SqlConnection connection = new SqlConnection(connectionString);
                 connection.Open();
 

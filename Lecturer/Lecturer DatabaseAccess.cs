@@ -14,7 +14,7 @@ namespace APU_Programming_Cafe
 {
     public class Database_Access
     {
-        string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\user\OneDrive - Asia Pacific University\IOOP APPLICATION\APU Programming Cafe\APU database.mdf"";Integrated Security=True;Connect Timeout=30";
+        string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\user\OneDrive - Asia Pacific University\IOOP APPLICATION\APU Programming Cafe\APU database.mdf"";Integrated Security=True";
         
         //REGISTER ENROLMENT FORM
         public void RegisterEnrolmentInsertStudentData(string StudentID, string Name, string Contact_Number, string Email, string Address, string ModuleCode, string EnrolmentMonth, string EnrolmentYear,  decimal PaymentAmount, string Completion)

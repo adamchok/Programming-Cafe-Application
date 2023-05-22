@@ -93,7 +93,7 @@ namespace APU_Programming_Cafe.Lecturer
         private void LecturerForm_Load(object sender, EventArgs e)
         {
             // database access code to fetch LecturerID and Lecturer Name from Code.
-            string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\user\OneDrive - Asia Pacific University\IOOP APPLICATION\APU Programming Cafe\APU database.mdf"";Integrated Security=True;Connect Timeout=30";
+            string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\user\OneDrive - Asia Pacific University\IOOP APPLICATION\APU Programming Cafe\APU database.mdf"";Integrated Security=True";
             SqlConnection connection = new SqlConnection(connectionString);
             connection.Open();
             string showLecturerID_and_Name = $"SELECT LecturerID, Name FROM {tableName} WHERE LecturerID = @value2";
