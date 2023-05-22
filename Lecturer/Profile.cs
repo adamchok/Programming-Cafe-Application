@@ -20,22 +20,7 @@ namespace APU_Programming_Cafe.Lecturer
         public string lecturerID;
         public string password;
         public bool insertProfileDetails = false;
-        public class LecturerDetails
-        {
-            public string LecturerID;
-            public string Password;
-            public string ContactNumber;
-            public string EmailAddress;
-            public string Address;
-        }
 
-        public class updatedLecturerDetails
-        {
-            public string Password;
-            public string ContactNumber;
-            public string EmailAddress;
-            public string Address;
-        }
         public Lecturer_Profile()
         {
             InitializeComponent();
@@ -103,12 +88,13 @@ namespace APU_Programming_Cafe.Lecturer
             }
             else
             {
-                updatedLecturerDetails updatedLecturerDetails = new updatedLecturerDetails();
-                updatedLecturerDetails.Password = txtPassword.Text;
+                Lecturers updatedLecturerDetails = new Lecturers();
+                UserLogin updatedLecturerPassword = new UserLogin();
+                updatedLecturerPassword.Password = txtPassword.Text;
                 updatedLecturerDetails.ContactNumber = txtContactNumber.Text;
-                updatedLecturerDetails.EmailAddress = txtEmail.Text;
+                updatedLecturerDetails.Email = txtEmail.Text;
                 updatedLecturerDetails.Address = txtAddress.Text;
-                database_access.updateProfileInformation(updatedLecturerDetails.ContactNumber, updatedLecturerDetails.EmailAddress, updatedLecturerDetails.Address, updatedLecturerDetails.Password, lecturerID);
+                database_access.updateProfileInformation(updatedLecturerDetails.ContactNumber, updatedLecturerDetails.Email, updatedLecturerDetails.Address, updatedLecturerPassword.Password, lecturerID);
                 ClearAll_and_Reset(lecturerID);
             }
         }

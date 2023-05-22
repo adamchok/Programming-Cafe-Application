@@ -346,7 +346,8 @@ namespace APU_Programming_Cafe
 
         public void insertDetails(string lecturerID, TextBox address, TextBox contactNumber, TextBox email, TextBox LecturerID, TextBox password)
         {
-            LecturerDetails lecturerDetails = new LecturerDetails();
+            Lecturers lecturerDetails = new Lecturers();
+            UserLogin lecturerPassword = new UserLogin();
             lecturerDetails.LecturerID = lecturerID;
 
             string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\user\OneDrive - Asia Pacific University\IOOP APPLICATION\APU Programming Cafe\APU database.mdf"";Integrated Security=True";
@@ -364,21 +365,21 @@ namespace APU_Programming_Cafe
                 while (reader.Read())
                 {
                     lecturerDetails.ContactNumber = reader.GetString(2);
-                    lecturerDetails.EmailAddress = reader.GetString(3);
+                    lecturerDetails.Email = reader.GetString(3);
                     lecturerDetails.Address = reader.GetString(4);
                 }
                 reader.Close();
                 SqlDataReader passwordReader = checkUserPasswordCommand.ExecuteReader();
                 while (passwordReader.Read())
                 {
-                    lecturerDetails.Password = passwordReader.GetString(0);
+                    lecturerPassword.Password = passwordReader.GetString(0);
                 }
                 passwordReader.Close();
                 address.Text = lecturerDetails.Address;
                 contactNumber.Text = lecturerDetails.ContactNumber;
-                email.Text = lecturerDetails.EmailAddress;
+                email.Text = lecturerDetails.Email;
                 LecturerID.Text = lecturerDetails.LecturerID;
-                password.Text = lecturerDetails.Password;
+                password.Text = lecturerPassword.Password;
                 connection.Close();
             }
             catch (Exception ex)

@@ -105,6 +105,7 @@
     <Compile Include="Lecturer\Update Enrolment.Designer.cs">
       <DependentUpon>Update Enrolment.cs</DependentUpon>
     </Compile>
+    <Compile Include="Lecturers.cs" />
     <Compile Include="Login\LoginForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -132,6 +133,7 @@
     <Compile Include="Trainer\TrainerForm.Designer.cs">
       <DependentUpon>TrainerForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UserLogin.cs" />
     <EmbeddedResource Include="Admin\AdminForm.resx">
       <DependentUpon>AdminForm.cs</DependentUpon>
     </EmbeddedResource>
