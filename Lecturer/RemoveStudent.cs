@@ -17,21 +17,6 @@ namespace APU_Programming_Cafe.Lecturer
             InitializeComponent();
         }
 
-        public class StudentEnrolmentDetals
-        {
-            public string ModuleCode { get; set; }
-            public string ModuleName { get; set; }
-            public string Level { get; set; }
-            public string EnrolmentMonth { get; set; }
-            public string EnrolmentYear { get; set; }
-        }
-
-        public class RemovingStudentDetails
-        {
-            public string StudentID { get; set; }
-            public string ModuleCode { get; set; }
-        }
-
         public void ClearAll()
         {
             listSelectedStudents.Items.Clear();
@@ -127,14 +112,14 @@ namespace APU_Programming_Cafe.Lecturer
                 ModuleName = cboModuleFilter.SelectedItem.ToString();
             }
 
-            StudentEnrolmentDetals studentDetails = new StudentEnrolmentDetals();
+            Students studentDetails = new Students();
             studentDetails.ModuleCode = ModuleCode;
-            studentDetails.ModuleName = ModuleName;
+            studentDetails.Module = ModuleName;
             studentDetails.Level = Level;
             studentDetails.EnrolmentMonth = Month;
             studentDetails.EnrolmentYear = Year;
 
-            remove_student_database.FilteredRemovableStudentDataGrid(datagridCompletedStudents, studentDetails.ModuleCode, studentDetails.EnrolmentMonth, studentDetails.EnrolmentYear, studentDetails.Level, studentDetails.ModuleName);
+            remove_student_database.FilteredRemovableStudentDataGrid(datagridCompletedStudents, studentDetails.ModuleCode, studentDetails.EnrolmentMonth, studentDetails.EnrolmentYear, studentDetails.Level, studentDetails.Module);
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
@@ -186,7 +171,7 @@ namespace APU_Programming_Cafe.Lecturer
         private void btnRemove_Click(object sender, EventArgs e)
         {
             bool Error = false;
-            RemovingStudentDetails ToBeRemovedstudentDetails = new RemovingStudentDetails();
+            Students ToBeRemovedstudentDetails = new Students();
             foreach (string student in listSelectedStudents.Items)
             {
                 ToBeRemovedStudent.Add(student);

@@ -29,15 +29,6 @@ namespace APU_Programming_Cafe.Lecturer
         int ErrorCount = 0;
         string Error = "";
         List<string> tempStudentID = new List<string>();
-
-        public class StudentUpdatedDetails
-        {
-            public string studentID {  get; set; }
-            public string updatedModuleCode { get; set; }
-            public string updatedYear { get; set; }
-            public string updatedMonth { get; set; }
-            public decimal updatedPaymentAmount { get; set; }
-        }
         
         private void ClearAll()
         {
@@ -87,18 +78,18 @@ namespace APU_Programming_Cafe.Lecturer
 
                 string StudentID_and_UpdatedModule = listSelectedStudents.SelectedItem.ToString();
                 string[] splittingStudentID_and_UpdatedModule = StudentID_and_UpdatedModule.Split(' ');
-                StudentUpdatedDetails updatedInformation = new StudentUpdatedDetails();
-                updatedInformation.studentID = splittingStudentID_and_UpdatedModule[0];
+                Students updatedInformation = new Students();
+                updatedInformation.StudentID = splittingStudentID_and_UpdatedModule[0];
                 string currentModuleCode = splittingStudentID_and_UpdatedModule[1];
-                updatedInformation.updatedModuleCode = ModuleCode;
-                updatedInformation.updatedPaymentAmount = PaymentAmount;
-                updatedInformation.updatedMonth = cboUpdatedMonth.SelectedItem.ToString();
-                updatedInformation.updatedYear = cboUpdatedYear.SelectedItem.ToString();
+                updatedInformation.ModuleCode = ModuleCode;
+                updatedInformation.PaymentAmount = PaymentAmount;
+                updatedInformation.EnrolmentMonth = cboUpdatedMonth.SelectedItem.ToString();
+                updatedInformation.EnrolmentYear = cboUpdatedYear.SelectedItem.ToString();
 
                 Database_Access updateEntry = new Database_Access();
                 try
                 {
-                    updateEntry.UpdateEnrolmentEntry(updatedInformation.studentID, updatedInformation.updatedModuleCode, updatedInformation.updatedMonth, updatedInformation.updatedYear, updatedInformation.updatedPaymentAmount);
+                    updateEntry.UpdateEnrolmentEntry(updatedInformation.StudentID, updatedInformation.ModuleCode, updatedInformation.EnrolmentMonth, updatedInformation.EnrolmentYear, updatedInformation.PaymentAmount);
                     MessageBox.Show("Update Successful.");
                     btnRefresh.PerformClick();
                     ClearAll();

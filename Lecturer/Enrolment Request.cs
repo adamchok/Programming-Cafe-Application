@@ -21,17 +21,6 @@ namespace APU_Programming_Cafe.Lecturer
             InitializeComponent();
         }
 
-        public class StudentRequestInfo
-        {
-            public string StudentID { get; set; }
-            public string EnrolmentMonth { get; set; }
-            public string EnrolmentYear { get; set; }
-            public string ModuleCode { get; set; }
-            public decimal PaymentAmount { get; set; }
-            public string Completion { get; set; }
-
-        }
-
         public void ClearAll()
         {
             cboEnrolmentMonth.SelectedIndex = -1;
@@ -91,8 +80,7 @@ namespace APU_Programming_Cafe.Lecturer
             {
                 string StudentID_and_RequestedModule = listSelectedStudents.SelectedItem.ToString();
                 string[] splittingStudentID_and_RequestedModule = StudentID_and_RequestedModule.Split(' ');
-
-                StudentRequestInfo requestedStudentDetails = new StudentRequestInfo();
+                Students requestedStudentDetails = new Students();
                 requestedStudentDetails.EnrolmentMonth = cboEnrolmentMonth.SelectedItem.ToString();
                 requestedStudentDetails.EnrolmentYear = cboEnrolmentYear.SelectedItem.ToString();
                 requestedStudentDetails.StudentID = splittingStudentID_and_RequestedModule[0];
@@ -201,8 +189,7 @@ namespace APU_Programming_Cafe.Lecturer
         {
             string StudentID_and_RequestedModule = listSelectedStudents.SelectedItem.ToString();
             string[] splittingStudentID_and_RequestedModule = StudentID_and_RequestedModule.Split(' ');
-
-            StudentRequestInfo rejectedStudentDetails = new StudentRequestInfo();
+            Students rejectedStudentDetails = new Students();
             rejectedStudentDetails.StudentID = splittingStudentID_and_RequestedModule[0];
             rejectedStudentDetails.ModuleCode = splittingStudentID_and_RequestedModule[1];
 

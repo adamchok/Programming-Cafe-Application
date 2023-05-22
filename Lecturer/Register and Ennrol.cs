@@ -42,22 +42,6 @@ namespace APU_Programming_Cafe.Login
 
         }
 
-        public class StudentInformation
-        {
-            public string Name { get; set; }
-            public string StudentID { get; set; }
-            public string StudentEmail { get; set; }
-            public string ContactNumber { get; set; }
-            public string StudentAddress { get; set; }
-            public string Level { get; set; }
-            public string Module { get; set; }
-            public string EnrolmentMonth { get; set; }
-            public string EnrolmentYear { get; set; }
-            public decimal PaymentAmount { get; set; }
-            public string Completion { get; set; }
-
-        }
-
         private void btnSubmit_Click(object sender, EventArgs e)
         {
             int phoneNumberChecker;
@@ -134,24 +118,23 @@ namespace APU_Programming_Cafe.Login
                         PaymentAmount = 600M;
                         break;
                 }
-
-                StudentInformation StudentDetails = new StudentInformation();
-                StudentDetails.Name = txtStudentName.Text;
-                StudentDetails.StudentID = txtStudentID.Text;
-                StudentDetails.StudentEmail = txtStudentEmail.Text;
-                StudentDetails.ContactNumber = txtContactNumber.Text;
-                StudentDetails.StudentAddress = txtStudentAddress.Text;
-                StudentDetails.Level = cboLevel.SelectedItem.ToString();
-                StudentDetails.Module = ModuleCode;
-                StudentDetails.PaymentAmount = PaymentAmount;
-                StudentDetails.EnrolmentMonth = cboMonth.SelectedItem.ToString();
-                StudentDetails.EnrolmentYear = cboYear.SelectedItem.ToString();
-                StudentDetails.Completion = "No";
+                Students newStudentDetails = new Students();
+                newStudentDetails.Name = txtStudentName.Text;
+                newStudentDetails.StudentID = txtStudentID.Text;
+                newStudentDetails.Email = txtStudentEmail.Text;
+                newStudentDetails.ContactNumber = txtContactNumber.Text;
+                newStudentDetails.Address = txtStudentAddress.Text;
+                newStudentDetails.Level = cboLevel.SelectedItem.ToString();
+                newStudentDetails.Module = ModuleCode;
+                newStudentDetails.PaymentAmount = PaymentAmount;
+                newStudentDetails.EnrolmentMonth = cboMonth.SelectedItem.ToString();
+                newStudentDetails.EnrolmentYear = cboYear.SelectedItem.ToString();
+                newStudentDetails.Completion = "No";
 
                 Database_Access InsertStudentDataMethod = new Database_Access();
                 try
                 {
-                    InsertStudentDataMethod.RegisterEnrolmentInsertStudentData(StudentDetails.StudentID, StudentDetails.Name, StudentDetails.ContactNumber, StudentDetails.StudentEmail, StudentDetails.StudentAddress, StudentDetails.Module, StudentDetails.EnrolmentMonth, StudentDetails.EnrolmentYear, StudentDetails.PaymentAmount, StudentDetails.Completion);
+                    InsertStudentDataMethod.RegisterEnrolmentInsertStudentData(newStudentDetails.StudentID, newStudentDetails.Name, newStudentDetails.ContactNumber, newStudentDetails.Email, newStudentDetails.Address, newStudentDetails.Module, newStudentDetails.EnrolmentMonth, newStudentDetails.EnrolmentYear, newStudentDetails.PaymentAmount, newStudentDetails.Completion);
                     MessageBox.Show("Enrolment Successful.");
                     ClearAll();
                 }
