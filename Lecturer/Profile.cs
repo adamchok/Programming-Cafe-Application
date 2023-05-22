@@ -10,6 +10,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static APU_Programming_Cafe.Lecturer.Lecturer_Profile;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace APU_Programming_Cafe.Lecturer
@@ -41,51 +42,6 @@ namespace APU_Programming_Cafe.Lecturer
         }
         Database_Access database_access = new Database_Access();
 
-        public void insertDetails(string lecturerID)
-        {
-            LecturerDetails lecturerDetails = new LecturerDetails();
-            lecturerDetails.LecturerID = lecturerID;
-
-            string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\user\OneDrive - Asia Pacific University\IOOP APPLICATION\APU Programming Cafe\APU database.mdf"";Integrated Security=True";
-            SqlConnection connection = new SqlConnection(connectionString);
-            connection.Open();
-            string fetchLecturerDetails = "SELECT * FROM Lecturer WHERE LecturerID = @value1";
-            string fetchLecturerPassword = "SELECT Password FROM Login WHERE Username = @value2";
-            SqlCommand checkUserDetailsCommand = new SqlCommand(fetchLecturerDetails, connection);
-            SqlCommand checkUserPasswordCommand = new SqlCommand(fetchLecturerPassword, connection);
-            try
-            {
-                checkUserDetailsCommand.Parameters.AddWithValue("@value1", lecturerID);
-                checkUserPasswordCommand.Parameters.AddWithValue("@value2", lecturerID);
-                SqlDataReader reader = checkUserDetailsCommand.ExecuteReader();
-                while (reader.Read())
-                {
-                    lecturerDetails.ContactNumber = reader.GetString(2);
-                    lecturerDetails.EmailAddress = reader.GetString(3);
-                    lecturerDetails.Address = reader.GetString(4);
-                }
-                reader.Close();
-                SqlDataReader passwordReader = checkUserPasswordCommand.ExecuteReader();
-                while (passwordReader.Read())
-                {
-                    lecturerDetails.Password = passwordReader.GetString(0);
-                }
-                passwordReader.Close();
-                txtAddress.Text = lecturerDetails.Address;
-                txtContactNumber.Text = lecturerDetails.ContactNumber;
-                txtEmail.Text = lecturerDetails.EmailAddress;
-                txtLecturerID.Text = lecturerDetails.LecturerID;
-                txtPassword.Text = lecturerDetails.Password;
-                connection.Close();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-                //lblLecturerID.Text = "ID not found.";
-                //lblLecturerName.Text = "Name not found.";
-            }
-        }
-
 
         public void ClearAll_and_Reset(string lecturerID)
         {
@@ -102,7 +58,7 @@ namespace APU_Programming_Cafe.Lecturer
             txtEmail.Text = "";
             txtPassword.Text = "";
 
-            insertDetails(lecturerID);
+            database_access.insertDetails(lecturerID, txtAddress, txtContactNumber, txtEmail, txtLecturerID, txtPassword);
         }
 
         public void disableTextBox()
@@ -171,7 +127,7 @@ namespace APU_Programming_Cafe.Lecturer
         {
             if (insertProfileDetails == true)
             {
-                insertDetails(lecturerID);
+                database_access.insertDetails(lecturerID, txtAddress, txtContactNumber, txtEmail, txtLecturerID, txtPassword);
             }
         }
 
