@@ -39,6 +39,7 @@ namespace APU_Programming_Cafe.Lecturer
         {
             InitializeComponent();
         }
+        Database_Access database_access = new Database_Access();
 
         public void insertDetails(string lecturerID)
         {
@@ -83,31 +84,6 @@ namespace APU_Programming_Cafe.Lecturer
                 //lblLecturerID.Text = "ID not found.";
                 //lblLecturerName.Text = "Name not found.";
             }
-        }
-
-        public void updateLectureProfile(string Password, string ContactNumber, string Email, string Address, string LecturerID)
-        {
-            try
-            {
-                string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\user\OneDrive - Asia Pacific University\IOOP APPLICATION\APU Programming Cafe\APU database.mdf"";Integrated Security=True";
-                SqlConnection connection = new SqlConnection(connectionString);
-                connection.Open();
-
-                string updateLecturerProfile = "UPDATE Lecturer SET ContactNumber = @contact_Number, Email = @email_Address, Address = @address";
-                SqlCommand updateLecturerProfileCommand = new SqlCommand(updateLecturerProfile, connection);
-                updateLecturerProfileCommand.Parameters.AddWithValue("@contact_Number", ContactNumber);
-                updateLecturerProfileCommand.Parameters.AddWithValue("@email_Address", Email);
-                updateLecturerProfileCommand.Parameters.AddWithValue("@address", Address);
-                updateLecturerProfileCommand.ExecuteNonQuery();
-
-                string updateUserLoginDetails = "UPDATE Login SET Password = @password WHERE Username = @lecturerID";
-                SqlCommand updateUserLoginDetailsCommand = new SqlCommand(updateUserLoginDetails, connection);
-                updateUserLoginDetailsCommand.Parameters.AddWithValue("@password", Password);
-                updateUserLoginDetailsCommand.Parameters.AddWithValue("@lecturerID", LecturerID);
-                updateUserLoginDetailsCommand.ExecuteNonQuery();
-                connection.Close();
-            }
-            catch (Exception ex) { MessageBox.Show(ex.ToString()); }
         }
 
 
@@ -176,8 +152,7 @@ namespace APU_Programming_Cafe.Lecturer
                 updatedLecturerDetails.ContactNumber = txtContactNumber.Text;
                 updatedLecturerDetails.EmailAddress = txtEmail.Text;
                 updatedLecturerDetails.Address = txtAddress.Text;
-
-                updateLectureProfile(updatedLecturerDetails.Password, updatedLecturerDetails.ContactNumber, updatedLecturerDetails.EmailAddress, updatedLecturerDetails.Address, lecturerID);
+                database_access.updateProfileInformation(updatedLecturerDetails.ContactNumber, updatedLecturerDetails.EmailAddress, updatedLecturerDetails.Address, updatedLecturerDetails.Password, lecturerID);
                 ClearAll_and_Reset(lecturerID);
             }
         }

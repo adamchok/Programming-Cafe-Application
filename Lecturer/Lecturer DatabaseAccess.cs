@@ -9,6 +9,8 @@ using System.Windows.Forms;
 using System.Security.Cryptography.X509Certificates;
 using System.Data;
 using System.Security.Policy;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
+using System.Net;
 
 namespace APU_Programming_Cafe
 {
@@ -315,6 +317,31 @@ namespace APU_Programming_Cafe
             }
         }
 
+        // PROFILE
+
+        public void updateProfileInformation(string ContactNumber, string Email, string Address, string Password, string LecturerID)
+        {
+            try
+            {
+                SqlConnection connection = new SqlConnection(connectionString);
+                connection.Open();
+
+                string updateLecturerProfile = "UPDATE Lecturer SET ContactNumber = @contact_Number, Email = @email_Address, Address = @address";
+                SqlCommand updateLecturerProfileCommand = new SqlCommand(updateLecturerProfile, connection);
+                updateLecturerProfileCommand.Parameters.AddWithValue("@contact_Number", ContactNumber);
+                updateLecturerProfileCommand.Parameters.AddWithValue("@email_Address", Email);
+                updateLecturerProfileCommand.Parameters.AddWithValue("@address", Address);
+                updateLecturerProfileCommand.ExecuteNonQuery();
+
+                string updateUserLoginDetails = "UPDATE Login SET Password = @password WHERE Username = @lecturerID";
+                SqlCommand updateUserLoginDetailsCommand = new SqlCommand(updateUserLoginDetails, connection);
+                updateUserLoginDetailsCommand.Parameters.AddWithValue("@password", Password);
+                updateUserLoginDetailsCommand.Parameters.AddWithValue("@lecturerID", LecturerID);
+                updateUserLoginDetailsCommand.ExecuteNonQuery();
+                connection.Close();
+            }
+            catch (Exception ex) { MessageBox.Show(ex.ToString()); }
+        }
 
 
     }
