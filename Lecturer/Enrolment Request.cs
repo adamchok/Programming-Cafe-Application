@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
@@ -16,10 +17,14 @@ namespace APU_Programming_Cafe.Lecturer
 {
     public partial class Enrolment_Request : UserControl
     {
-        public Enrolment_Request()
+        string connectionString;
+        public Enrolment_Request(string connString)
         {
             InitializeComponent();
+            connectionString = connString;
         }
+
+        List<string> tempStudentID = new List<string>();
 
         public void ClearAll()
         {
@@ -28,9 +33,6 @@ namespace APU_Programming_Cafe.Lecturer
             listSelectedStudents.SelectedIndex = -1;
             txtSearch.Text = string.Empty;
         }
-
-
-        List<string> tempStudentID = new List<string>();
 
         private void btnClearAll_Click(object sender, EventArgs e)
         {
@@ -80,67 +82,127 @@ namespace APU_Programming_Cafe.Lecturer
             {
                 string StudentID_and_RequestedModule = listSelectedStudents.SelectedItem.ToString();
                 string[] splittingStudentID_and_RequestedModule = StudentID_and_RequestedModule.Split(' ');
-                Students requestedStudentDetails = new Students();
-                requestedStudentDetails.EnrolmentMonth = cboEnrolmentMonth.SelectedItem.ToString();
-                requestedStudentDetails.EnrolmentYear = cboEnrolmentYear.SelectedItem.ToString();
-                requestedStudentDetails.StudentID = splittingStudentID_and_RequestedModule[0];
-                requestedStudentDetails.ModuleCode = splittingStudentID_and_RequestedModule[1];
-                requestedStudentDetails.Completion = "No";
+                decimal PaymentAmount = 0;
+                string ModuleCode = splittingStudentID_and_RequestedModule[1];
+                string StudentID = splittingStudentID_and_RequestedModule[0];
 
-                if (requestedStudentDetails.ModuleCode.Contains("01"))
+                if (ModuleCode.Contains("01"))
                 {
-                    requestedStudentDetails.PaymentAmount = 200M;
+                    PaymentAmount = 200M;
                 }
-                else if (requestedStudentDetails.ModuleCode.Contains("02"))
+                else if (ModuleCode.Contains("02"))
                 {
-                    requestedStudentDetails.PaymentAmount = 400M;
+                    PaymentAmount = 400M;
                 }
-                else if (requestedStudentDetails.ModuleCode.Contains("03"))
+                else if (ModuleCode.Contains("03"))
                 {
-                    requestedStudentDetails.PaymentAmount = 600M;
+                    PaymentAmount = 600M;
                 }
 
-                try
+                string intake = string.Empty;
+                List<string> paymentMonth = new List<string>();
+                paymentMonth.Clear();
+
+                if (cboEnrolmentMonth.SelectedItem.ToString() == "January")
                 {
-                    Database_Access insertRequestedStudent = new Database_Access();
-                    insertRequestedStudent.RequestedStudentInsertStudentData(requestedStudentDetails.StudentID, requestedStudentDetails.ModuleCode, requestedStudentDetails.EnrolmentMonth, requestedStudentDetails.EnrolmentYear, requestedStudentDetails.PaymentAmount, requestedStudentDetails.Completion);
+                    intake = $"01{cboEnrolmentYear.SelectedItem}";
+                    paymentMonth.Add("January");
+                    paymentMonth.Add("Febuary");
+                    paymentMonth.Add("March");
+                }
+                else if (cboEnrolmentMonth.SelectedItem.ToString() == "April")
+                {
+                    intake = $"04{cboEnrolmentYear.SelectedItem}";
+                    paymentMonth.Add("April");
+                    paymentMonth.Add("May");
+                    paymentMonth.Add("June");
+                }
+                else if (cboEnrolmentMonth.SelectedItem.ToString() == "July")
+                {
+                    intake = $"07{cboEnrolmentYear.SelectedItem}";
+                    paymentMonth.Add("July");
+                    paymentMonth.Add("August");
+                    paymentMonth.Add("September");
+                }
+                else if (cboEnrolmentMonth.SelectedItem.ToString() == "October")
+                {
+                    intake = $"10{cboEnrolmentYear.SelectedItem}";
+                    paymentMonth.Add("October");
+                    paymentMonth.Add("November");
+                    paymentMonth.Add("December");
+                }
 
-                    Database_Access deleteRequestedStudent = new Database_Access();
-                    deleteRequestedStudent.DeleteRequestedStudentAfterInsertingData(requestedStudentDetails.StudentID, requestedStudentDetails.ModuleCode);
+                string enrolmentSuccessful = string.Empty;
+                Students addEnrolment = new Students(StudentID, ModuleCode, intake, "No", PaymentAmount);
+                enrolmentSuccessful = addEnrolment.EnrolStudent(connectionString);
 
-                    MessageBox.Show("Enrolment Successful.");
+                if (enrolmentSuccessful == "true")
+                {
+                    foreach (string month in paymentMonth)
+                    {
+                        addEnrolment.addPayment(connectionString, month);
+                    }
+                    addEnrolment.DeleteRequest(connectionString);
+                    MessageBox.Show("Enrolment Successful!");
+                    ClearAll();
                     btnRefresh.PerformClick();
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageBox.Show(ex.ToString());
-                    /*
-                    if (ex.ToString().Contains("duplicate key"))
+                    if (enrolmentSuccessful.Contains("duplicate"))
                     {
-                        MessageBox.Show("Student is already enrolled in their requested program.");
+                        MessageBox.Show("Student already enrolled for this specific course.");
                     }
                     else
                     {
-                        //MessageBox.Show("Enrolment Unsuccessful. Please try again.");
-                        MessageBox.Show(ex.ToString());
+                        MessageBox.Show("Error: Unable to enrol student. Please try again.");
                     }
-                    */
-
                 }
             }
         }
         private void Enrolment_Request_Load(object sender, EventArgs e)
         {
-            Database_Access insertDataIntoDatagrid_and_listbox = new Database_Access();
-            insertDataIntoDatagrid_and_listbox.RefreshInRequestedStudent(datagridRequestedStudents, listSelectedStudents, tempStudentID);
+            btnRefresh.PerformClick();
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             listSelectedStudents.Items.Clear();
             tempStudentID.Clear();
-            Database_Access refreshDatagrid_and_listbox = new Database_Access();
-            refreshDatagrid_and_listbox.RefreshInRequestedStudent(datagridRequestedStudents, listSelectedStudents, tempStudentID);
+
+            SqlConnection connection = new SqlConnection(connectionString);
+            connection.Open();
+            SqlDataAdapter adapter = new SqlDataAdapter("SELECT Request.StudentID, Student.Name, Request.ModuleCode FROM Request INNER JOIN Student ON Request.StudentID = Student.StudentID", connection);
+            DataTable dataTable = new DataTable();
+            adapter.Fill(dataTable);
+            datagridRequestedStudents.DataSource = dataTable;
+            datagridRequestedStudents.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            string listboxQuery = "SELECT StudentID, ModuleCode FROM Request ORDER BY StudentID ASC";
+            List<string> Student_and_RequestedModule = new List<string>();
+            SqlCommand command = new SqlCommand(listboxQuery, connection);
+            SqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                string StudentID = reader.GetString(0);
+                string ModuleCode = reader.GetString(1);
+                if (!Student_and_RequestedModule.Contains(StudentID))
+                {
+                    Student_and_RequestedModule.Add(StudentID + " " + ModuleCode);
+                    tempStudentID.Add(StudentID + " " + ModuleCode);
+                }
+            }
+            reader.Close();
+            foreach (string item in Student_and_RequestedModule)
+            {
+                if (!listSelectedStudents.Items.Contains(item))
+                {
+                    listSelectedStudents.Items.Add(item);
+                }
+            }
+            listSelectedStudents.DisplayMember = "ID";
+            listSelectedStudents.SelectedIndex = -1;
+            connection.Close();
             ClearAll();
         }
 
@@ -187,14 +249,25 @@ namespace APU_Programming_Cafe.Lecturer
 
         private void btnReject_Click(object sender, EventArgs e)
         {
-            string StudentID_and_RequestedModule = listSelectedStudents.SelectedItem.ToString();
-            string[] splittingStudentID_and_RequestedModule = StudentID_and_RequestedModule.Split(' ');
-            Students rejectedStudentDetails = new Students();
-            rejectedStudentDetails.StudentID = splittingStudentID_and_RequestedModule[0];
-            rejectedStudentDetails.ModuleCode = splittingStudentID_and_RequestedModule[1];
+            string[] splittingStudentID_and_RequestedModule = listSelectedStudents.SelectedItem.ToString().Split(' ');
+            Students rejectedStudent = new Students();
+            rejectedStudent.StudentID = splittingStudentID_and_RequestedModule[0];
+            rejectedStudent.ModuleCode = splittingStudentID_and_RequestedModule[1];
 
-            Database_Access deleteRequestedStudent = new Database_Access();
-            deleteRequestedStudent.DeleteRequestedStudentAfterInsertingData(rejectedStudentDetails.StudentID, rejectedStudentDetails.ModuleCode);
+            string DeleteSuccessful = rejectedStudent.DeleteRequest(connectionString);
+            if (DeleteSuccessful != "true")
+            {
+                MessageBox.Show("Error: Unable to reject student's request.");
+            }
+            else
+            {
+                MessageBox.Show("Rejection Successful.");
+                btnRefresh.PerformClick();
+            }
+        }
+
+        private void Enrolment_Request_VisibleChanged(object sender, EventArgs e)
+        {
             btnRefresh.PerformClick();
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
@@ -15,9 +16,11 @@ namespace APU_Programming_Cafe.Lecturer
 {
     public partial class Update_Enrolment : UserControl
     {
-        public Update_Enrolment()
+        string connectionString;
+        public Update_Enrolment(string connString)
         {
             InitializeComponent();
+            connectionString = connString;
         }
 
         private void btnExit_Click(object sender, EventArgs e)
@@ -29,7 +32,7 @@ namespace APU_Programming_Cafe.Lecturer
         int ErrorCount = 0;
         string Error = "";
         List<string> tempStudentID = new List<string>();
-        
+
         private void ClearAll()
         {
             listSelectedStudents.SelectedIndex = -1;
@@ -43,8 +46,7 @@ namespace APU_Programming_Cafe.Lecturer
 
         private void Update_Enrolment_Load(object sender, EventArgs e)
         {
-            Database_Access updateDatagrid_and_listbox= new Database_Access();
-            updateDatagrid_and_listbox.RefreshInUpdateEnrolment(datagridEnrolledStudents, listSelectedStudents, tempStudentID);
+            btnRefresh.PerformClick();
         }
 
         private void btnUpdate_Click(object sender, EventArgs e)
@@ -59,7 +61,10 @@ namespace APU_Programming_Cafe.Lecturer
             else
             {
                 string ModuleCode = string.Empty;
-                decimal PaymentAmount = 0;
+                decimal PaymentAmount = 0M;
+                string StudentID_and_CurrentModule = listSelectedStudents.SelectedItem.ToString();
+                string[] splittingStudentID_and_CurrentModule = StudentID_and_CurrentModule.Split(' ');
+                List<string> paymentMonth = new List<string>();
                 switch (cboUpdatedLevel.SelectedIndex)
                 {
                     case 0:
@@ -75,28 +80,59 @@ namespace APU_Programming_Cafe.Lecturer
                         PaymentAmount = 600M;
                         break;
                 }
+                string intake = "";
 
-                string StudentID_and_UpdatedModule = listSelectedStudents.SelectedItem.ToString();
-                string[] splittingStudentID_and_UpdatedModule = StudentID_and_UpdatedModule.Split(' ');
-                Students updatedInformation = new Students();
-                updatedInformation.StudentID = splittingStudentID_and_UpdatedModule[0];
-                string currentModuleCode = splittingStudentID_and_UpdatedModule[1];
-                updatedInformation.ModuleCode = ModuleCode;
-                updatedInformation.PaymentAmount = PaymentAmount;
-                updatedInformation.EnrolmentMonth = cboUpdatedMonth.SelectedItem.ToString();
-                updatedInformation.EnrolmentYear = cboUpdatedYear.SelectedItem.ToString();
+                paymentMonth.Clear();
 
-                Database_Access updateEntry = new Database_Access();
-                try
+                if (cboUpdatedMonth.SelectedItem.ToString() == "January")
                 {
-                    updateEntry.UpdateEnrolmentEntry(updatedInformation.StudentID, updatedInformation.ModuleCode, updatedInformation.EnrolmentMonth, updatedInformation.EnrolmentYear, updatedInformation.PaymentAmount);
-                    MessageBox.Show("Update Successful.");
-                    btnRefresh.PerformClick();
-                    ClearAll();
+                    intake = $"01{cboUpdatedYear.SelectedItem}";
+                    paymentMonth.Add("January");
+                    paymentMonth.Add("Febuary");
+                    paymentMonth.Add("March");
                 }
-                catch /*(Exception ex)*/
+                else if (cboUpdatedMonth.SelectedItem.ToString() == "April")
                 {
-                    //MessageBox.Show(ex.ToString());
+                    intake = $"04{cboUpdatedYear.SelectedItem}";
+                    paymentMonth.Add("April");
+                    paymentMonth.Add("May");
+                    paymentMonth.Add("June");
+                }
+                else if (cboUpdatedMonth.SelectedItem.ToString() == "July")
+                {
+                    intake = $"07{cboUpdatedYear.SelectedItem}";
+                    paymentMonth.Add("July");
+                    paymentMonth.Add("August");
+                    paymentMonth.Add("September");
+                }
+                else if (cboUpdatedMonth.SelectedItem.ToString() == "October")
+                {
+                    intake = $"10{cboUpdatedYear.SelectedItem}";
+                    paymentMonth.Add("October");
+                    paymentMonth.Add("November");
+                    paymentMonth.Add("December");
+                }
+
+                Students updateEnrolment = new Students(splittingStudentID_and_CurrentModule[0], splittingStudentID_and_CurrentModule[1], PaymentAmount, intake, ModuleCode);
+                bool updateSuccessful = updateEnrolment.UpdateEnrolment(connectionString);
+                
+                if (updateSuccessful == true)
+                {
+                    bool paymentSuccessful = false;
+                    paymentSuccessful = updateEnrolment.UpdatePayment(connectionString, paymentMonth);
+                    if (paymentSuccessful == true)
+                    {
+                        MessageBox.Show("Update Successful.");
+                        btnRefresh.PerformClick();
+                        ClearAll();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Update Unsuccessful. Please try again.");
+                    }
+                }
+                else
+                {
                     MessageBox.Show("Update Unsuccessful. Please try again.");
                 }
             }
@@ -132,24 +168,60 @@ namespace APU_Programming_Cafe.Lecturer
             }
             else
             {
-                MessageBox.Show("There are no student requests at the moment.");
+                MessageBox.Show("There are no student to update at the moment.");
             }
         }
 
         private void btnClear_Click(object sender, EventArgs e)
         {
             ClearAll();
+            btnRefresh.PerformClick();
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             tempStudentID.Clear();
             listSelectedStudents.Items.Clear();
-            Database_Access updateDatagrid_and_listbox = new Database_Access();
-            updateDatagrid_and_listbox.RefreshInUpdateEnrolment(datagridEnrolledStudents, listSelectedStudents, tempStudentID);
+
+            SqlConnection connection = new SqlConnection(connectionString);
+            connection.Open();
+            SqlDataAdapter adapter = new SqlDataAdapter("SELECT Enrolment.StudentID, Student.Name, Enrolment.ModuleCode, Enrolment.Intake FROM Enrolment INNER JOIN Student ON Enrolment.StudentID = Student.StudentID WHERE Completion = 'No'", connection);
+            DataTable dataTable = new DataTable();
+            adapter.Fill(dataTable);
+            datagridEnrolledStudents.DataSource = dataTable;
+            datagridEnrolledStudents.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            string listboxQuery = "SELECT StudentID, ModuleCode FROM Enrolment ORDER BY StudentID ASC";
+            List<string> StudentID_and_ModuleCode = new List<string>();
+            SqlCommand command = new SqlCommand(listboxQuery, connection);
+            SqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                string StudentID = reader.GetString(0);
+                string ModuleCode = reader.GetString(1);
+                if (!StudentID_and_ModuleCode.Contains(StudentID))
+                {
+                    StudentID_and_ModuleCode.Add(StudentID + " " + ModuleCode);
+                    tempStudentID.Add(StudentID + " " + ModuleCode);
+                }
+            }
+            reader.Close();
+
+            foreach (string item in StudentID_and_ModuleCode)
+            {
+                if (!listSelectedStudents.Items.Contains(item))
+                {
+                    listSelectedStudents.Items.Add(item);
+                }
+            }
+
+            listSelectedStudents.DisplayMember = "ID";
+            listSelectedStudents.SelectedIndex = -1;
+            connection.Close();
+            txtSearch.Text = string.Empty;
         }
 
-        public string ErrorChecking()
+        private string ErrorChecking()
         {
             Error = string.Empty;
             ErrorCount = 0;
@@ -202,7 +274,6 @@ namespace APU_Programming_Cafe.Lecturer
                 string StudentIDForErrorChecking = splittingStudentID_and_UpdatedModule[0];
                 string currentModuleCode = splittingStudentID_and_UpdatedModule[1];
 
-                string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=""C:\Users\user\OneDrive - Asia Pacific University\IOOP APPLICATION\APU Programming Cafe\APU database.mdf"";Integrated Security=True;Connect Timeout=30";
                 SqlConnection connection = new SqlConnection(connectionString);
                 connection.Open();
                 string listboxQuery = "SELECT ModuleCode FROM Enrolment WHERE StudentID = @student_ID";
@@ -248,6 +319,11 @@ namespace APU_Programming_Cafe.Lecturer
             {
                 btnRefresh.PerformClick();
             }
+        }
+
+        private void Update_Enrolment_VisibleChanged(object sender, EventArgs e)
+        {
+            btnRefresh.PerformClick();
         }
     }
 }

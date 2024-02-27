@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
@@ -17,19 +18,21 @@ namespace APU_Programming_Cafe.Lecturer
 {
     public partial class Lecturer_Profile : UserControl
     {
-        public string lecturerID;
-        public string password;
-        public bool insertProfileDetails = false;
+        string lecturerID;
+        string password;
+        string connectionString;
 
-        public Lecturer_Profile()
+        public Lecturer_Profile(string connString, string LECTURERID, string PASSWORD)
         {
             InitializeComponent();
+            connectionString = connString;
+            lecturerID = LECTURERID;
+            password = PASSWORD;
         }
-        Database_Access database_access = new Database_Access();
-
 
         public void ClearAll_and_Reset(string lecturerID)
         {
+            ///// Clear everything.
             btnSave.Visible = false;
             txtAddress.Enabled = false;
             txtPassword.Enabled = false;
@@ -43,16 +46,10 @@ namespace APU_Programming_Cafe.Lecturer
             txtEmail.Text = "";
             txtPassword.Text = "";
 
-            database_access.insertDetails(lecturerID, txtAddress, txtContactNumber, txtEmail, txtLecturerID, txtPassword);
-        }
-
-        public void disableTextBox()
-        {
-            txtAddress.Enabled = false;
-            txtPassword.Enabled = false;
-            txtContactNumber.Enabled = false;
-            txtEmail.Enabled = false;
-            txtPassword.PasswordChar = '*';
+            //////Reinsert everything.
+            Lecturers lecturerDetails = new Lecturers(lecturerID);
+            txtPassword.Text = password;
+            lecturerDetails.displayLecturerProfile(txtLecturerID, txtAddress, txtEmail, txtContactNumber, connectionString);
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -84,17 +81,30 @@ namespace APU_Programming_Cafe.Lecturer
             if (ErrorCount > 0)
             {
                 MessageBox.Show(Error);
-                //ClearAll_and_Reset(lecturerID);
             }
             else
             {
-                Lecturers updatedLecturerDetails = new Lecturers();
-                UserLogin updatedLecturerPassword = new UserLogin();
-                updatedLecturerPassword.Password = txtPassword.Text;
-                updatedLecturerDetails.ContactNumber = txtContactNumber.Text;
-                updatedLecturerDetails.Email = txtEmail.Text;
-                updatedLecturerDetails.Address = txtAddress.Text;
-                database_access.updateProfileInformation(updatedLecturerDetails.ContactNumber, updatedLecturerDetails.Email, updatedLecturerDetails.Address, updatedLecturerPassword.Password, lecturerID);
+                Lecturers updatedLecturerDetails = new Lecturers(lecturerID, txtContactNumber.Text, txtAddress.Text, txtEmail.Text);
+                string output = updatedLecturerDetails.updateLecturerProfile(connectionString);
+
+                if (output != "Update Successful.")
+                {
+                    MessageBox.Show(output);
+                }
+                else
+                {
+                    LoginUsers updatedLecturerPassword = new LoginUsers(lecturerID, txtPassword.Text);
+                    string passwordOutput = updatedLecturerPassword.updatePassword(connectionString);
+
+                    if (passwordOutput != "Successful")
+                    {
+                        MessageBox.Show(passwordOutput);
+                    }
+                    else
+                    {
+                        MessageBox.Show(output);
+                    }
+                }
                 ClearAll_and_Reset(lecturerID);
             }
         }
@@ -111,10 +121,7 @@ namespace APU_Programming_Cafe.Lecturer
 
         private void Lecturer_Profile_Load(object sender, EventArgs e)
         {
-            if (insertProfileDetails == true)
-            {
-                database_access.insertDetails(lecturerID, txtAddress, txtContactNumber, txtEmail, txtLecturerID, txtPassword);
-            }
+             ClearAll_and_Reset(lecturerID);
         }
 
         private void btnClose_Click(object sender, EventArgs e)

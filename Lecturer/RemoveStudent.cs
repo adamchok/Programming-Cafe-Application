@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -12,12 +14,14 @@ namespace APU_Programming_Cafe.Lecturer
 {
     public partial class RemoveStudent : UserControl
     {
-        public RemoveStudent()
+        public string connectionString;
+        public RemoveStudent(string connString)
         {
             InitializeComponent();
+            connectionString = connString;
         }
 
-        public void ClearAll()
+        private void ClearAll()
         {
             listSelectedStudents.Items.Clear();
             txtSearch.Text = string.Empty;
@@ -30,16 +34,15 @@ namespace APU_Programming_Cafe.Lecturer
         List<string> tempStudentID = new List<string>();
         List<string> ToBeRemovedStudent = new List<string>();
 
-        Database_Access remove_student_database = new Database_Access();    
         private void RemoveStudent_Load(object sender, EventArgs e)
         {
-            remove_student_database.RefreshRemovableStudentDataGrid(datagridCompletedStudents);
+            btnRefresh.PerformClick();
         }
 
         private void btnClear_Click(object sender, EventArgs e)
         {
             ClearAll();
-            remove_student_database.RefreshRemovableStudentDataGrid(datagridCompletedStudents);
+            btnRefresh.PerformClick();
         }
 
         private void datagridCompletedStudents_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -67,6 +70,12 @@ namespace APU_Programming_Cafe.Lecturer
 
         private void btnFilterSearch_Click(object sender, EventArgs e)
         {
+            bool intakeFilter = false;
+            if (cboMonthFilter.SelectedIndex != -1 && cboYearFilter.SelectedIndex != -1)
+            {
+                intakeFilter = true;
+            }
+
             string ModuleCode = "";
             string Level = "";
             string Month = "";
@@ -97,9 +106,21 @@ namespace APU_Programming_Cafe.Lecturer
                     break;
             }
            
-            if (cboMonthFilter.SelectedIndex != -1)
+            if (cboMonthFilter.SelectedIndex == 0)
             {
-                Month = cboMonthFilter.SelectedItem.ToString();
+                Month = "01";
+            }
+            else if (cboMonthFilter.SelectedIndex == 1)
+            {
+                Month = "04";
+            }
+            else if (cboMonthFilter.SelectedIndex == 2)
+            {
+                Month = "07";
+            }
+            else if (cboMonthFilter.SelectedIndex == 3)
+            {
+                Month = "10";
             }
 
             if (cboYearFilter.SelectedIndex != -1)
@@ -114,17 +135,87 @@ namespace APU_Programming_Cafe.Lecturer
 
             Students studentDetails = new Students();
             studentDetails.ModuleCode = ModuleCode;
-            studentDetails.Module = ModuleName;
-            studentDetails.Level = Level;
-            studentDetails.EnrolmentMonth = Month;
-            studentDetails.EnrolmentYear = Year;
+            studentDetails.ModuleName = ModuleName;
+            studentDetails.ModuleLevel = Level;
+            studentDetails.Intake = $"{Month}{Year}";
 
-            remove_student_database.FilteredRemovableStudentDataGrid(datagridCompletedStudents, studentDetails.ModuleCode, studentDetails.EnrolmentMonth, studentDetails.EnrolmentYear, studentDetails.Level, studentDetails.Module);
+            List<string> SearchConditions = new List<string>();
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            string openTableWithNoSearchConditions = "SELECT Enrolment.StudentID, Student.Name, Enrolment.ModuleCode, Enrolment.Intake FROM Enrolment INNER JOIN Student ON Enrolment.StudentID = Student.StudentID WHERE Completion = 'Yes'";
+
+            if (!string.IsNullOrEmpty(ModuleCode))
+            {
+                SearchConditions.Add("ModuleCode = @value1");
+                parameters["@value1"] = studentDetails.ModuleCode;
+            }
+
+            if (!string.IsNullOrEmpty(studentDetails.Intake) && intakeFilter == true)
+            {
+                SearchConditions.Add("Intake = @value2");
+                parameters["@value2"] = studentDetails.Intake;
+            }
+
+            if (!string.IsNullOrEmpty(studentDetails.ModuleLevel))
+            {
+                SearchConditions.Add("ModuleCode LIKE '%' + @value3 + '%'");
+                parameters["@value3"] = studentDetails.ModuleLevel;
+            }
+
+            if (!string.IsNullOrEmpty(studentDetails.ModuleName))
+            {
+                SearchConditions.Add("ModuleCode LIKE '%' + @value4 + '%'");
+                parameters["@value4"] = studentDetails.ModuleName;
+            }
+
+            string queryWithSearchCondtions = openTableWithNoSearchConditions;
+            if (SearchConditions.Count > 0)
+            {
+                foreach (string condition in SearchConditions)
+                {
+                    queryWithSearchCondtions += $" AND {condition}";
+                }
+            }
+
+            SqlConnection connection = new SqlConnection(connectionString);
+            connection.Open();
+            SqlCommand cmd = new SqlCommand(queryWithSearchCondtions, connection);
+
+            foreach (var parameter in parameters)
+            {
+                cmd.Parameters.AddWithValue(parameter.Key, parameter.Value);
+            }
+
+            SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+            DataTable dataTable = new DataTable();
+            adapter.Fill(dataTable);
+            datagridCompletedStudents.DataSource = dataTable;
+            datagridCompletedStudents.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            connection.Close();
+
+            if (intakeFilter == false)
+            {
+                if (cboMonthFilter.SelectedIndex == -1 && cboYearFilter.SelectedIndex == -1)
+                {
+                    // do nothing
+                }
+                else
+                {
+                    MessageBox.Show("Error: Intake Month and Intake Year has to be selected together for filtering intakes.");
+                }
+            }
+
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
-            remove_student_database.RefreshRemovableStudentDataGrid(datagridCompletedStudents);
+            SqlConnection connection = new SqlConnection(connectionString);
+            connection.Open();
+            SqlDataAdapter adapter = new SqlDataAdapter("SELECT Enrolment.StudentID, Student.Name, Enrolment.ModuleCode, Enrolment.Intake FROM Enrolment INNER JOIN Student ON Enrolment.StudentID = Student.StudentID WHERE Completion = 'Yes'", connection);
+            DataTable dataTable = new DataTable();
+            adapter.Fill(dataTable);
+            datagridCompletedStudents.DataSource = dataTable;
+            datagridCompletedStudents.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
@@ -138,7 +229,18 @@ namespace APU_Programming_Cafe.Lecturer
                     {
                         if (row.Cells[0].Value.ToString().Contains(txtSearch.Text))
                         {
-                            remove_student_database.SearchRemovableStudentDataGrid(datagridCompletedStudents, txtSearch.Text);
+                            string baseQuery = "SELECT Enrolment.StudentID, Student.Name, Enrolment.ModuleCode, Enrolment.Intake FROM Enrolment INNER JOIN Student ON Enrolment.StudentID = Student.StudentID WHERE Completion = 'Yes' AND Enrolment.StudentID LIKE '%' + @student_ID + '%'";
+                            SqlConnection connection = new SqlConnection(connectionString);
+                            connection.Open();
+                            SqlCommand cmd = new SqlCommand(baseQuery, connection);
+                            cmd.Parameters.AddWithValue("@student_ID", txtSearch.Text);
+                            SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                            DataTable dataTable = new DataTable();
+                            adapter.Fill(dataTable);
+                            datagridCompletedStudents.DataSource = dataTable;
+                            datagridCompletedStudents.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                            connection.Close();
+
                             IDnotPresent = false;
                             break;
                         }
@@ -171,7 +273,7 @@ namespace APU_Programming_Cafe.Lecturer
         private void btnRemove_Click(object sender, EventArgs e)
         {
             bool Error = false;
-            Students ToBeRemovedstudentDetails = new Students();
+
             foreach (string student in listSelectedStudents.Items)
             {
                 ToBeRemovedStudent.Add(student);
@@ -179,34 +281,30 @@ namespace APU_Programming_Cafe.Lecturer
             foreach (string toBeRemovedStudent in ToBeRemovedStudent)
             {
                 string[] splittingStudentID_and_CompletedModule = toBeRemovedStudent.Split(' ');
-                ToBeRemovedstudentDetails.StudentID = splittingStudentID_and_CompletedModule[0];
-                ToBeRemovedstudentDetails.ModuleCode = splittingStudentID_and_CompletedModule[1];
-                try
-                {
-                    remove_student_database.RemoveRemovableStudent(ToBeRemovedstudentDetails.StudentID, ToBeRemovedstudentDetails.ModuleCode);
-                    
-                    btnClear.PerformClick();
-                    btnRefresh.PerformClick();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.ToString());
-                    Error = true;
-                    break;
-                }
+
+                Students removeStudent = new Students(splittingStudentID_and_CompletedModule[0], splittingStudentID_and_CompletedModule[1]);
+                removeStudent.RemoveStudent(connectionString, out Error);
             }
             
             if (Error == true)
             {
-                MessageBox.Show("Removal Successful");
-                btnClear.PerformClick();
+                MessageBox.Show("Removal Unsuccessful");
                 btnRefresh.PerformClick();
             }
             else
             {
-                MessageBox.Show("Removal Unsuccessful");
+                MessageBox.Show("Removal Successful");
                 btnRefresh.PerformClick();
+                btnClear.PerformClick();
             }
         }
+
+        private void RemoveStudent_VisibleChanged(object sender, EventArgs e)
+        {
+            btnRefresh.PerformClick();
+            btnClear.PerformClick();
+        }
+
+
     }
 }

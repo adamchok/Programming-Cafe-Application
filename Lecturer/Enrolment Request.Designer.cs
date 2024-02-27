@@ -295,6 +295,7 @@
             this.Name = "Enrolment_Request";
             this.Size = new System.Drawing.Size(1078, 681);
             this.Load += new System.EventHandler(this.Enrolment_Request_Load);
+            this.VisibleChanged += new System.EventHandler(this.Enrolment_Request_VisibleChanged);
             ((System.ComponentModel.ISupportInitialize)(this.datagridRequestedStudents)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

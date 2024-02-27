@@ -355,6 +355,7 @@
             this.Name = "Update_Enrolment";
             this.Size = new System.Drawing.Size(1078, 681);
             this.Load += new System.EventHandler(this.Update_Enrolment_Load);
+            this.VisibleChanged += new System.EventHandler(this.Update_Enrolment_VisibleChanged);
             ((System.ComponentModel.ISupportInitialize)(this.datagridEnrolledStudents)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

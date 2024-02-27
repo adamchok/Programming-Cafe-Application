@@ -281,6 +281,7 @@
             this.datagridCompletedStudents.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.datagridCompletedStudents.Size = new System.Drawing.Size(542, 462);
             this.datagridCompletedStudents.TabIndex = 40;
+            
             this.datagridCompletedStudents.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.datagridCompletedStudents_CellDoubleClick);
             // 
             // btnExit
@@ -398,6 +399,7 @@
             this.Name = "RemoveStudent";
             this.Size = new System.Drawing.Size(1078, 681);
             this.Load += new System.EventHandler(this.RemoveStudent_Load);
+            this.VisibleChanged += new System.EventHandler(this.RemoveStudent_VisibleChanged);
             ((System.ComponentModel.ISupportInitialize)(this.datagridCompletedStudents)).EndInit();
             this.grpboxFilter.ResumeLayout(false);
             this.grpboxFilter.PerformLayout();

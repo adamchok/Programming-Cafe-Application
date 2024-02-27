@@ -1,22 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace APU_Programming_Cafe.Login
 {
     public partial class Register_and_Ennrol : UserControl
     {
-        public Register_and_Ennrol()
+        string connectionString;
+        public Register_and_Ennrol(string connString)
         {
             InitializeComponent();
+            connectionString = connString;
         }
         int ErrorCount = 0;
         string Error = "";
@@ -47,10 +54,12 @@ namespace APU_Programming_Cafe.Login
             int phoneNumberChecker;
             Error = string.Empty;
             ErrorCount = 0;
-            if (txtStudentName.Text == string.Empty || !txtStudentName.Text.Contains(" "))
+
+
+            if (txtStudentName.Text == string.Empty)
             {
                 ErrorCount += 1;
-                Error += "Error: Invalid student name. Please include spaces in the name.\n";
+                Error += "Error: Invalid student name. Please entry a student name";
             }
             if (txtStudentID.Text == string.Empty || !txtStudentID.Text.Contains("TP") || txtStudentID.Text.Length != 8)
             {
@@ -103,6 +112,9 @@ namespace APU_Programming_Cafe.Login
             {
                 string ModuleCode = string.Empty;
                 decimal PaymentAmount = 0;
+                string intake = string.Empty;
+                List<string> paymentMonth = new List<string>();
+
                 switch (cboLevel.SelectedIndex)
                 {
                     case 0:
@@ -118,30 +130,82 @@ namespace APU_Programming_Cafe.Login
                         PaymentAmount = 600M;
                         break;
                 }
-                Students newStudentDetails = new Students();
-                newStudentDetails.Name = txtStudentName.Text;
-                newStudentDetails.StudentID = txtStudentID.Text;
-                newStudentDetails.Email = txtStudentEmail.Text;
-                newStudentDetails.ContactNumber = txtContactNumber.Text;
-                newStudentDetails.Address = txtStudentAddress.Text;
-                newStudentDetails.Level = cboLevel.SelectedItem.ToString();
-                newStudentDetails.Module = ModuleCode;
-                newStudentDetails.PaymentAmount = PaymentAmount;
-                newStudentDetails.EnrolmentMonth = cboMonth.SelectedItem.ToString();
-                newStudentDetails.EnrolmentYear = cboYear.SelectedItem.ToString();
-                newStudentDetails.Completion = "No";
+                paymentMonth.Clear();
 
-                Database_Access InsertStudentDataMethod = new Database_Access();
-                try
+                if (cboMonth.SelectedItem.ToString() == "January")
                 {
-                    InsertStudentDataMethod.RegisterEnrolmentInsertStudentData(newStudentDetails.StudentID, newStudentDetails.Name, newStudentDetails.ContactNumber, newStudentDetails.Email, newStudentDetails.Address, newStudentDetails.Module, newStudentDetails.EnrolmentMonth, newStudentDetails.EnrolmentYear, newStudentDetails.PaymentAmount, newStudentDetails.Completion);
-                    MessageBox.Show("Enrolment Successful.");
-                    ClearAll();
+                    intake = $"01{cboYear.SelectedItem}";
+                    paymentMonth.Add("January");
+                    paymentMonth.Add("Febuary");
+                    paymentMonth.Add("March");
                 }
-                catch (Exception ex)
+                else if (cboMonth.SelectedItem.ToString() == "April")
                 {
-                    MessageBox.Show(ex.ToString());
-                    //MessageBox.Show("Enrolment Unsuccessful. Please try again.");
+                    intake = $"04{cboYear.SelectedItem}";
+                    paymentMonth.Add("April");
+                    paymentMonth.Add("May");
+                    paymentMonth.Add("June");
+                }
+                else if (cboMonth.SelectedItem.ToString() == "July")
+                {
+                    intake = $"07{cboYear.SelectedItem}";
+                    paymentMonth.Add("July");
+                    paymentMonth.Add("August");
+                    paymentMonth.Add("September");
+                }
+                else if (cboMonth.SelectedItem.ToString() == "October")
+                {
+                    intake = $"10{cboYear.SelectedItem}";
+                    paymentMonth.Add("October");
+                    paymentMonth.Add("November");
+                    paymentMonth.Add("December");
+                }
+
+                
+                Students RegisterStudent = new Students(txtStudentID.Text, txtStudentName.Text, txtContactNumber.Text, txtStudentEmail.Text ,txtStudentAddress.Text);
+                string RegisterSuccessful = RegisterStudent.RegisterStudent(connectionString);
+                string Password = RegisterStudent.StudentID;
+
+                LoginUsers addUserLogin = new LoginUsers(RegisterStudent.StudentID, Password, "Student");
+                string addUserSuccessful = addUserLogin.addUser(connectionString);
+
+                if (RegisterSuccessful == "true" && addUserSuccessful == "true")
+                {
+                    string enrolmentSuccessful = string.Empty;
+                    Students addEnrolment = new Students(RegisterStudent.StudentID, ModuleCode, intake, "No", PaymentAmount);
+                    enrolmentSuccessful = addEnrolment.EnrolStudent(connectionString);
+
+                    if (enrolmentSuccessful == "true")
+                    {
+                        foreach (string month in paymentMonth)
+                        {
+                            addEnrolment.addPayment(connectionString, month);
+                        }
+                        MessageBox.Show("Enrolment Successful!");
+                        ClearAll();
+                    }
+                    else
+                    {
+                        if (enrolmentSuccessful.Contains("duplicate"))
+                        {
+                            MessageBox.Show("Student already enrolled for this specific course.");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Error: Unable to enrol student. Please try again.");
+                        }
+                    }
+                }
+                else
+                {
+                    if (RegisterSuccessful.Contains("duplicate") || addUserSuccessful.Contains("duplicate"))
+                    {
+                        MessageBox.Show("Student already registered.");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Register Unsuccessful. Please try again.");
+                    }
                 }
             }
         }
@@ -150,5 +214,6 @@ namespace APU_Programming_Cafe.Login
         {
             ClearAll();
         }
+
     }
 }

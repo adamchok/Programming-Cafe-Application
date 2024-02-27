@@ -1,16 +1,13 @@
 ﻿using APU_Programming_Cafe.Lecturer;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using APU_Programming_Cafe.Trainer;
 using APU_Programming_Cafe.Student;
 using APU_Programming_Cafe.Admin;
+using System.Data.SqlClient;
+using System.Configuration;
+using System.Collections.Generic;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace APU_Programming_Cafe
 {
@@ -21,48 +18,75 @@ namespace APU_Programming_Cafe
             InitializeComponent();
         }
 
-        public class UserDetailsAndRole
-        {
-            public string Username { get; set; }
-            public string Password { get; set; }
-            public string UserRole { get; set; }
-        }
-
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            //temporary loading lecturer form.
+            string connString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Users\\User'\\OneDrive - Asia Pacific University (1)\\IOOP APPLICATION\\APU Programming Cafe\\APU database.mdf\";Integrated Security=True";
+            //int ErrorCount = 1;
+            bool userPresent=false;
+            string Error = "";
+            string userRole = "";
+
+            LoginUsers userDetailsAndRole = new LoginUsers(txtLoginUsername.Text, txtLoginPassword.Text);
+
             if (txtLoginUsername.Text != "" && txtLoginPassword.Text != "")
             {
-                UserDetailsAndRole userDetailsAndRole = new UserDetailsAndRole();
-                userDetailsAndRole.Username = txtLoginUsername.Text;
-                userDetailsAndRole.Password = txtLoginPassword.Text;
-                Database_Access loginCheck = new Database_Access();
-                string outcome = loginCheck.CheckLoginInformation(userDetailsAndRole.Username, userDetailsAndRole.Password);
-                if (outcome == "Error")
+                if ((!txtLoginUsername.Text.Contains("AP") || !txtLoginUsername.Text.Contains("TP") || !txtLoginUsername.Text.Contains("AD") || !txtLoginUsername.Text.Contains("TD")) && txtLoginUsername.Text.Length != 8)
                 {
-                    MessageBox.Show("Error logging in. Please try again.");
-                }
-                else if (outcome == "False")
-                {
-                    MessageBox.Show("Error logging in. Incorrect username or password. Please try again.");
+                    Error += "Error: Invalid Username. Please try again.\n";
                 }
                 else
                 {
-                    userDetailsAndRole.UserRole = outcome;
-                    LecturerForm lecturerForm = new LecturerForm();
-                    lecturerForm.lecturerID = userDetailsAndRole.Username;
-                    lecturerForm.password = userDetailsAndRole.Password;
-                    lecturerForm.tableName = userDetailsAndRole.UserRole;
-                    lecturerForm.Show();
-                    this.Hide();
+                    List<string> connectionStrings = new List<string>
+                    {
+                        ConfigurationManager.ConnectionStrings["Student"].ToString(),
+                        ConfigurationManager.ConnectionStrings["Lecturer"].ToString(),
+                        //ConfigurationManager.ConnectionStrings["Admin"].ToString(),
+                        connString,
+                        ConfigurationManager.ConnectionStrings["Trainer"].ToString()
+                    };
+
+                    userPresent = userDetailsAndRole.checkUserInformation(connectionStrings, out connString, out userRole);
+                }
+
+                if (userPresent == false)
+                {
+                    Error += "Error logging in. Incorrect Username or Password. Please try again.\n";
+                    MessageBox.Show(Error);
+                }
+                else
+                {
+                    if (userRole.Contains("Student"))
+                    {
+                        StudentForm studentForm = new StudentForm(connString, userDetailsAndRole.Username, userDetailsAndRole.Password);
+                        studentForm.Show();
+                        this.Hide();
+                    }
+                    else if (userRole.Contains("Lecturer"))
+                    {
+                        LecturerForm lecturerForm = new LecturerForm(connString, userDetailsAndRole.Username, userDetailsAndRole.Password);
+                        lecturerForm.Show();
+                        this.Hide();
+                    }
+                    // userRole == "Trainer"
+                    else if (userRole.Contains("Trainer"))
+                    {
+                        TrainerForm trainerForm = new TrainerForm(connString, userDetailsAndRole.Username, userDetailsAndRole.Password);
+                        trainerForm.Show();
+                        this.Hide();
+                    }
+                    else if (userRole.Contains("Admin"))
+                    {
+                        AdminForm adminForm = new AdminForm(connString, userDetailsAndRole.Username, userDetailsAndRole.Password);
+                        adminForm.Show();
+                        this.Hide();
+                    }
                 }
             }
-            
-            
+
             else if (txtLoginUsername.Text == "Trainer" || txtLoginUsername.Text == "t" || txtLoginUsername.Text == "trainer")
             {
                 //temporary loading trainer form.
-                TrainerForm trainerForm = new TrainerForm();
+                TrainerForm trainerForm = new TrainerForm(connString, userDetailsAndRole.Username, userDetailsAndRole.Password);
                 trainerForm.Show();
                 this.Hide();
             }
@@ -70,7 +94,7 @@ namespace APU_Programming_Cafe
             else if (txtLoginUsername.Text == "Student" || txtLoginUsername.Text == "student" || txtLoginUsername.Text == "s")
             {
                 //temporary loading student form.
-                StudentForm studentForm = new StudentForm();
+                StudentForm studentForm = new StudentForm(connString, userDetailsAndRole.Username, userDetailsAndRole.Password);
                 studentForm.Show();
                 Hide();
             }
@@ -78,7 +102,7 @@ namespace APU_Programming_Cafe
             else if (txtLoginUsername.Text == "Admin" || txtLoginUsername.Text == "admin" || txtLoginUsername.Text == "a")
             {
                 //temporary loading admin form.
-                AdminForm adminForm = new AdminForm();
+                AdminForm adminForm = new AdminForm(connString, userDetailsAndRole.Username, userDetailsAndRole.Password);
                 adminForm.Show();
                 Hide();
             }
@@ -87,7 +111,6 @@ namespace APU_Programming_Cafe
             {
                 MessageBox.Show("No username or password inputted");
             }
-
         }
 
         private void LoginForm_FormClosing(object sender, FormClosingEventArgs e)

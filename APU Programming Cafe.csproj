@@ -51,6 +51,7 @@
     <Reference Include="System">
       <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll</HintPath>
     </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -63,18 +64,62 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admins.cs" />
     <Compile Include="Admin\AdminForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Admin\AdminForm.Designer.cs">
       <DependentUpon>AdminForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DatabaseDataSet.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>DatabaseDataSet.xsd</DependentUpon>
+    <Compile Include="Admin\Profile.cs">
+      <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Lecturer\Lecturer DatabaseAccess.cs" />
+    <Compile Include="Admin\Profile.Designer.cs">
+      <DependentUpon>Profile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\Trainer_AssignTrainer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Admin\Trainer_AssignTrainer.designer.cs">
+      <DependentUpon>Trainer_AssignTrainer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\Trainer_DeleteTrainer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Admin\Trainer_DeleteTrainer.Designer.cs">
+      <DependentUpon>Trainer_DeleteTrainer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\Trainer_RegisterNewTrainer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Admin\Trainer_RegisterNewTrainer.Designer.cs">
+      <DependentUpon>Trainer_RegisterNewTrainer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\ValidatePaymentAndAssign.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Admin\ValidatePaymentAndAssign.designer.cs">
+      <DependentUpon>ValidatePaymentAndAssign.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\ViewFeedback.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Admin\ViewFeedback.Designer.cs">
+      <DependentUpon>ViewFeedback.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\ViewIncomeReport.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Admin\ViewIncomeReport.Designer.cs">
+      <DependentUpon>ViewIncomeReport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CoachingClass.cs" />
+    <Compile Include="Lecturer\Enrol.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Lecturer\Enrol.Designer.cs">
+      <DependentUpon>Enrol.cs</DependentUpon>
+    </Compile>
     <Compile Include="Lecturer\Enrolment Request.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -121,11 +166,66 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Students.cs" />
+    <Compile Include="Student\Payment.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Student\Payment.Designer.cs">
+      <DependentUpon>Payment.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Student\Request.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Student\Request.Designer.cs">
+      <DependentUpon>Request.cs</DependentUpon>
+    </Compile>
     <Compile Include="Student\StudentForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Student\StudentForm.Designer.cs">
       <DependentUpon>StudentForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Student\Profile.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Student\Profile.Designer.cs">
+      <DependentUpon>Profile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Student\Timetable.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Student\Timetable.Designer.cs">
+      <DependentUpon>Timetable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Student\Pending Request.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Student\Pending Request.Designer.cs">
+      <DependentUpon>Pending Request.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Trainers.cs" />
+    <Compile Include="Trainer\AddCoachingClass.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Trainer\AddCoachingClass.Designer.cs">
+      <DependentUpon>AddCoachingClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Trainer\Feedback.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Trainer\Feedback.Designer.cs">
+      <DependentUpon>Feedback.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Trainer\RemoveCoachingClass.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Trainer\RemoveCoachingClass.Designer.cs">
+      <DependentUpon>RemoveCoachingClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Trainer\StudentsListandFees.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Trainer\StudentsListandFees.Designer.cs">
+      <DependentUpon>StudentsListandFees.cs</DependentUpon>
     </Compile>
     <Compile Include="Trainer\TrainerForm.cs">
       <SubType>Form</SubType>
@@ -133,9 +233,45 @@
     <Compile Include="Trainer\TrainerForm.Designer.cs">
       <DependentUpon>TrainerForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="UserLogin.cs" />
+    <Compile Include="Trainer\TrainerProfile.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Trainer\TrainerProfile.Designer.cs">
+      <DependentUpon>TrainerProfile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Trainer\Update Coaching Class.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Trainer\Update Coaching Class.Designer.cs">
+      <DependentUpon>Update Coaching Class.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LoginUsers.cs" />
     <EmbeddedResource Include="Admin\AdminForm.resx">
       <DependentUpon>AdminForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Admin\Profile.resx">
+      <DependentUpon>Profile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Admin\Trainer_AssignTrainer.resx">
+      <DependentUpon>Trainer_AssignTrainer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Admin\Trainer_DeleteTrainer.resx">
+      <DependentUpon>Trainer_DeleteTrainer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Admin\Trainer_RegisterNewTrainer.resx">
+      <DependentUpon>Trainer_RegisterNewTrainer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Admin\ValidatePaymentAndAssign.resx">
+      <DependentUpon>ValidatePaymentAndAssign.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Admin\ViewFeedback.resx">
+      <DependentUpon>ViewFeedback.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Admin\ViewIncomeReport.resx">
+      <DependentUpon>ViewIncomeReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lecturer\Enrol.resx">
+      <DependentUpon>Enrol.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Lecturer\Enrolment Request.resx">
       <DependentUpon>Enrolment Request.cs</DependentUpon>
@@ -167,23 +303,45 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Student\Payment.resx">
+      <DependentUpon>Payment.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Student\Pending Request.resx">
+      <DependentUpon>Pending Request.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Student\Profile.resx">
+      <DependentUpon>Profile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Student\Request.resx">
+      <DependentUpon>Request.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Student\StudentForm.resx">
       <DependentUpon>StudentForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Student\Timetable.resx">
+      <DependentUpon>Timetable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Trainer\AddCoachingClass.resx">
+      <DependentUpon>AddCoachingClass.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Trainer\Feedback.resx">
+      <DependentUpon>Feedback.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Trainer\RemoveCoachingClass.resx">
+      <DependentUpon>RemoveCoachingClass.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Trainer\StudentsListandFees.resx">
+      <DependentUpon>StudentsListandFees.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Trainer\TrainerForm.resx">
       <DependentUpon>TrainerForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="DatabaseDataSet.xsc">
-      <DependentUpon>DatabaseDataSet.xsd</DependentUpon>
-    </None>
-    <None Include="DatabaseDataSet.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>DatabaseDataSet.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="DatabaseDataSet.xss">
-      <DependentUpon>DatabaseDataSet.xsd</DependentUpon>
-    </None>
+    <EmbeddedResource Include="Trainer\TrainerProfile.resx">
+      <DependentUpon>TrainerProfile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Trainer\Update Coaching Class.resx">
+      <DependentUpon>Update Coaching Class.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
